@@ -1,0 +1,576 @@
+/* =============================================================================
+   style.css — Museum 3D
+   Struktur:
+     1. Reset & Base
+     2. Loading Screen
+     3. Welcome Hint
+     4. HUD Elements (crosshair, room label, controls info)
+     5. Info Panel
+     6. On-Screen Movement Buttons
+============================================================================= */
+
+
+/* ── 1. Reset & Base ──────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  background: #080604;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #9a8060;
+  user-select: none;
+}
+
+canvas {
+  display: block;
+  cursor: grab;
+}
+
+canvas.dragging {
+  cursor: grabbing;
+}
+
+
+/* ── 2. Loading Screen ────────────────────────────────────────────────────── */
+
+#loading {
+  position: fixed;
+  inset: 0;
+  background: #080604;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  transition: opacity 0.8s ease;
+}
+
+#loading h1 {
+  color: #c8a050;
+  font-size: 2.6rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  font-weight: normal;
+  margin-bottom: 0.3rem;
+}
+
+.l-sub {
+  color: #5a4a2a;
+  font-size: 0.65rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+}
+
+.l-bar {
+  width: 180px;
+  height: 1px;
+  background: #2a1e0e;
+}
+
+.l-fill {
+  height: 100%;
+  background: #c8a050;
+  width: 0%;
+  transition: width 0.18s ease;
+}
+
+.l-lbl {
+  margin-top: 0.9rem;
+  color: #3a2e18;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+
+/* ── 3. Welcome Hint ──────────────────────────────────────────────────────── */
+
+#hint {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(8, 6, 4, 0.50) 0%,
+    rgba(8, 6, 4, 0.88) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: opacity 0.4s;
+}
+
+#hint.off {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.h-title {
+  color: #c8a050;
+  font-size: 1.5rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  font-weight: normal;
+  margin-bottom: 0.5rem;
+}
+
+.h-sub {
+  color: #6a5a3a;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  margin-bottom: 1.6rem;
+}
+
+.divider {
+  width: 50px;
+  height: 1px;
+  background: #3a2e18;
+  margin: 0 auto 1.5rem;
+}
+
+.h-ctrl {
+  color: #4a3e28;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  line-height: 2.3;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.h-ctrl span {
+  color: #8a7050;
+}
+
+.h-btn {
+  margin-top: 1.8rem;
+  background: transparent;
+  border: 1px solid #c8a050;
+  color: #c8a050;
+  font-family: Georgia, serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  padding: 0.6rem 2rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.h-btn:hover {
+  background: #c8a050;
+  color: #080604;
+}
+
+
+/* ── Cable Hint ───────────────────────────────────────────────────────────── */
+
+#cable-hint {
+  position: fixed;
+  bottom: 2.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(8, 6, 4, 0.78);
+  border: 1px solid #3a2e18;
+  padding: 0.55rem 1.2rem;
+  border-radius: 2px;
+  z-index: 90;
+  animation: ch-fadein 0.6s ease forwards, ch-fadeout 0.6s ease 4.4s forwards;
+  pointer-events: none;
+}
+
+.ch-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.ch-text {
+  color: #8a7050;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: Georgia, serif;
+}
+
+@keyframes ch-fadein {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0);   }
+}
+
+@keyframes ch-fadeout {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+
+
+
+/* Crosshair */
+#xhair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.6;
+}
+
+/* Label nama ruangan (kiri atas) */
+#rlabel {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  z-index: 10;
+}
+
+.rl-h {
+  display: block;
+  color: #3a2e18;
+  font-size: 0.55rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.rl-n {
+  display: block;
+  color: #8a7050;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  margin-top: 0.12rem;
+  text-transform: uppercase;
+}
+
+/* Petunjuk kontrol (kanan bawah) */
+#hud {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  color: #2a2010;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 2.1;
+  text-align: right;
+  z-index: 10;
+}
+
+#hud span {
+  color: #4a3e28;
+}
+
+
+/* ── 5. Info Panel ────────────────────────────────────────────────────────── */
+
+#panel {
+  position: fixed;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  background: rgba(8, 6, 4, 0.93);
+  border: 1px solid #2a2010;
+  border-top: 1px solid #c8a050;
+  padding: 1rem 2.2rem 1.2rem;
+  min-width: 320px;
+  max-width: 460px;
+  text-align: center;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+#panel.on {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+#p-title {
+  color: #c8a050;
+  font-size: 0.92rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+#p-desc {
+  color: #9a8060;
+  font-size: 0.73rem;
+  line-height: 1.7;
+}
+
+#p-meta {
+  color: #3a2e18;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  margin-top: 0.6rem;
+}
+
+.p-tag {
+  display: inline-block;
+  border: 1px solid #3a2e18;
+  color: #5a4a28;
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
+  padding: 0.1rem 0.5rem;
+  margin-top: 0.45rem;
+  text-transform: uppercase;
+}
+
+/* Link "Kunjungi Situs" */
+.p-link-btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid #c8a050;
+  color: #c8a050;
+  font-family: Georgia, serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.6rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.p-link-btn:hover {
+  background: #c8a050;
+  color: #080604;
+}
+
+
+/* ── 6. Virtual Joystick (mobile) ────────────────────────────────────────── */
+
+/* Base lingkaran — area sentuh */
+#joystick-base {
+  position: fixed;
+  bottom: 28px;
+  left: 28px;
+  width: 120px;
+  height: 120px;
+  z-index: 20;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Hanya tampil di layar sentuh */
+  display: none;
+}
+
+/* Tampilkan hanya di perangkat touch */
+@media (pointer: coarse) {
+  #joystick-base {
+    display: block;
+  }
+}
+
+/* Ring luar */
+#joystick-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(8, 6, 4, 0.55);
+  border: 1.5px solid rgba(200, 160, 80, 0.35);
+  backdrop-filter: blur(2px);
+  transition: border-color 0.15s;
+}
+
+#joystick-base.active #joystick-ring {
+  border-color: rgba(200, 160, 80, 0.75);
+  background: rgba(8, 6, 4, 0.70);
+}
+
+/* Garis panduan dalam (+) */
+#joystick-ring::before,
+#joystick-ring::after {
+  content: "";
+  position: absolute;
+  background: rgba(200, 160, 80, 0.12);
+}
+#joystick-ring::before {
+  top: 50%;  left: 20%;  right: 20%;  height: 1px;
+  transform: translateY(-50%);
+}
+#joystick-ring::after {
+  left: 50%; top: 20%; bottom: 20%; width: 1px;
+  transform: translateX(-50%);
+}
+
+/* Anak panah arah (sudut dalam ring) */
+#joystick-base::before {
+  content: "↑";
+  position: absolute;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+  color: rgba(200, 160, 80, 0.3);
+  font-size: 0.65rem;
+  line-height: 1;
+  z-index: 1;
+}
+
+/* Knob — bola tengah yang diseret */
+#joystick-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle at 38% 36%,
+    rgba(200, 160, 80, 0.85) 0%,
+    rgba(140, 100, 30, 0.90) 55%,
+    rgba(80, 55, 10, 0.95) 100%
+  );
+  border: 1.5px solid rgba(200, 160, 80, 0.6);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: transform 0.08s ease, box-shadow 0.08s;
+  cursor: grab;
+}
+
+#joystick-base.active #joystick-knob {
+  box-shadow:
+    0 4px 16px rgba(200, 160, 80, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: none; /* No lag while dragging */
+}
+
+/* Hint teks di bawah joystick */
+#joystick-base + .joy-hint {
+  position: fixed;
+  bottom: 10px;
+  left: 28px;
+  color: #3a2e18;
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: none;
+}
+@media (pointer: coarse) {
+  #joystick-base + .joy-hint { display: block; }
+}
+
+
+/* ── 7. Responsive HUD (desktop vs mobile) ──────────────────────────────── */
+
+.hud-touch   { display: none; }
+.hud-desktop { display: inline; }
+
+@media (pointer: coarse) {
+  .hud-touch   { display: inline; }
+  .hud-desktop { display: none; }
+}
+
+/* ── Landscape hint — hanya di HP (pointer: coarse) ─────────────────────── */
+
+#landscape-hint {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  #landscape-hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px auto 4px;
+    padding: 10px 16px;
+    background: rgba(200, 160, 80, 0.12);
+    border: 1px solid rgba(200, 160, 80, 0.45);
+    border-radius: 10px;
+    max-width: 280px;
+    animation: pulse-hint 2s ease-in-out infinite;
+  }
+  .lh-icon {
+    font-size: 1.6rem;
+    animation: spin-hint 3s ease-in-out infinite;
+  }
+  .lh-text {
+    font-size: 0.78rem;
+    color: #e8c870;
+    line-height: 1.4;
+    text-align: left;
+  }
+  .lh-text strong {
+    color: #c8a050;
+  }
+}
+
+@keyframes pulse-hint {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+@keyframes spin-hint {
+  0%   { transform: rotate(0deg); }
+  30%  { transform: rotate(90deg); }
+  60%  { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+
+/* ── 8. Tombol Musik & Badge Now Playing ────────────────────────────────── */
+
+.p-music-btn {
+  background: transparent;
+  border: 1px solid #c8a050;
+  color: #c8a050;
+  font-family: Georgia, serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.6rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.p-music-btn:hover {
+  background: #c8a050;
+  color: #080604;
+}
+.p-music-btn.playing {
+  border-color: #ffd060;
+  color: #ffd060;
+  background: rgba(200,160,80,0.12);
+}
+
+#now-playing {
+  position: fixed;
+  bottom: 22px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(8,6,4,0.88);
+  border: 1px solid rgba(200,160,80,0.4);
+  border-left: 2px solid #c8a050;
+  padding: 0.35rem 0.85rem;
+  z-index: 30;
+  animation: np-fadein 0.4s ease;
+}
+@keyframes np-fadein {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0);   }
+}
+.np-note {
+  color: #c8a050;
+  font-size: 0.8rem;
+  animation: np-pulse 1.2s ease-in-out infinite;
+}
+@keyframes np-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.np-text {
+  color: #8a7050;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
